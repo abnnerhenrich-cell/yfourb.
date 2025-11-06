@@ -27,19 +27,21 @@
     h1 {
       font-size: 4rem;
       letter-spacing: 3px;
-      color: #fff;
-      text-shadow: 0 0 25px rgba(255, 255, 255, 0.9);
-      animation: glowFade 4s ease-in-out infinite alternate;
+      color: #00eaff;
+      text-shadow: 0 0 30px #00eaff;
+      animation: colorShift 6s ease-in-out infinite alternate;
       z-index: 2;
       user-select: none;
     }
 
-    @keyframes glowFade {
+    @keyframes colorShift {
       0% {
-        text-shadow: 0 0 30px rgba(255, 255, 255, 1), 0 0 60px rgba(255, 255, 255, 0.8);
+        color: #00eaff;
+        text-shadow: 0 0 25px #00eaff, 0 0 60px #00eaff;
       }
       100% {
-        text-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
+        color: #ffffff;
+        text-shadow: 0 0 10px #ffffff, 0 0 30px #ffffff;
       }
     }
 
@@ -47,19 +49,20 @@
       margin-top: 40px;
       width: 60px;
       height: 60px;
-      background: linear-gradient(45deg, #405DE6, #833AB4, #E1306C, #FCAF45);
+      background: rgba(255, 255, 255, 0.1);
+      border: 2px solid rgba(255, 255, 255, 0.3);
       border-radius: 15px;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
       z-index: 2;
     }
 
     .insta-btn:hover {
       transform: scale(1.1);
-      box-shadow: 0 0 15px rgba(255,255,255,0.4);
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.4);
     }
 
     .insta-btn img {
@@ -84,18 +87,18 @@
   <h1>yfourb</h1>
 
   <div class="insta-btn" id="instaBtn">
-    <img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" alt="Instagram">
+    <img src="https://cdn-icons-png.flaticon.com/512/1384/1384063.png" alt="Instagram branco">
   </div>
 
   <script>
     // --- LINK DO INSTAGRAM ---
-    const instaLink = "https://instagram.com/seuusuario"; // coloque o seu link aqui
+    const instaLink = "https://instagram.com/yfourb"; // coloque o seu link aqui
 
     document.getElementById("instaBtn").addEventListener("click", () => {
       window.open(instaLink, "_blank");
     });
 
-    // --- CHUVA ---
+    // --- CHUVA INTERATIVA ---
     const canvas = document.getElementById("rain");
     const ctx = canvas.getContext("2d");
 
@@ -127,7 +130,7 @@
         ctx.beginPath();
         ctx.moveTo(this.x, this.y);
         ctx.lineTo(this.x, this.y + this.length);
-        ctx.strokeStyle = `rgba(173, 216, 230, ${this.opacity})`; // azul clarinho
+        ctx.strokeStyle = `rgba(180, 220, 255, ${this.opacity})`;
         ctx.lineWidth = 1.5;
         ctx.stroke();
       }
@@ -138,7 +141,7 @@
         const dy = this.y - mouse.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
 
-        // leve reação ao mouse
+        // leve desvio ao mouse
         if (distance < mouse.radius) {
           this.x += (dx / distance) * 2;
         }
