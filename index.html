@@ -2,62 +2,70 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>yfourb</title>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
     body {
       height: 100vh;
-      background: radial-gradient(circle at center, #0b1321 0%, #070b12 100%);
+      background: #0d1117;
       color: #fff;
       overflow: hidden;
+      font-family: "Poppins", sans-serif;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      font-family: "Poppins", sans-serif;
       position: relative;
     }
 
     h1 {
       font-size: 4rem;
       letter-spacing: 3px;
-      color: #00ffff;
-      text-shadow: 0 0 10px #00ffff, 0 0 30px #00ffff, 0 0 60px #00ffff;
+      color: #fff;
+      text-shadow: 0 0 25px rgba(255, 255, 255, 0.9);
+      animation: glowFade 4s ease-in-out infinite alternate;
       z-index: 2;
-      margin-bottom: 20px;
-      animation: glowFade 3s ease-out forwards;
+      user-select: none;
     }
 
     @keyframes glowFade {
       0% {
-        text-shadow: 0 0 20px #00ffff, 0 0 60px #00ffff, 0 0 120px #00ffff;
-      }
-      50% {
-        text-shadow: 0 0 30px #00ffff, 0 0 80px #00ffff;
+        text-shadow: 0 0 30px rgba(255, 255, 255, 1), 0 0 60px rgba(255, 255, 255, 0.8);
       }
       100% {
-        text-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff;
+        text-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
       }
     }
 
-    button {
-      background: none;
-      border: none;
+    .insta-btn {
+      margin-top: 40px;
+      width: 60px;
+      height: 60px;
+      background: linear-gradient(45deg, #405DE6, #833AB4, #E1306C, #FCAF45);
+      border-radius: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
       z-index: 2;
     }
 
-    button img {
-      width: 48px;
-      height: 48px;
-      filter: drop-shadow(0 0 8px #00ffff);
-      transition: transform 0.3s;
+    .insta-btn:hover {
+      transform: scale(1.1);
+      box-shadow: 0 0 15px rgba(255,255,255,0.4);
     }
 
-    button img:hover {
-      transform: scale(1.1);
+    .insta-btn img {
+      width: 35px;
+      height: 35px;
+      filter: brightness(0) invert(1);
     }
 
     canvas {
@@ -66,154 +74,100 @@
       left: 0;
       width: 100%;
       height: 100%;
-      pointer-events: none;
       z-index: 0;
-    }
-
-    footer {
-      position: absolute;
-      bottom: 20px;
-      color: #aaa;
-      font-size: 12px;
-      text-align: center;
-      width: 100%;
     }
   </style>
 </head>
 <body>
-  <canvas id="snow"></canvas>
+  <canvas id="rain"></canvas>
 
   <h1>yfourb</h1>
 
-  <!-- Botão Instagram -->
-  <button id="instaBtn">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png" alt="Instagram">
-  </button>
-
-  <footer></footer>
+  <div class="insta-btn" id="instaBtn">
+    <img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" alt="Instagram">
+  </div>
 
   <script>
-    // ---- CONFIGURAÇÕES ----
-    const musicaURL = "https://voca.ro/12xCWfXjwOOn";
-    const instaURL = "https://instagram.com/yfourb"; // seu link aqui
+    // --- LINK DO INSTAGRAM ---
+    const instaLink = "https://instagram.com/seuusuario"; // coloque o seu link aqui
 
-    // ---- BOTÃO INSTA ----
     document.getElementById("instaBtn").addEventListener("click", () => {
-      window.open(instaURL, "_blank");
+      window.open(instaLink, "_blank");
     });
 
-    // ---- ÁUDIO ----
-    const audio = new Audio(musicaURL);
-    audio.loop = true;
-    audio.volume = 0;
-
-    // Tenta tocar automaticamente com fade-in
-    async function tocarMusica() {
-      try {
-        await audio.play();
-        let vol = 0;
-        const fade = setInterval(() => {
-          if (vol < 1) {
-            vol += 0.02;
-            audio.volume = vol;
-          } else clearInterval(fade);
-        }, 100);
-      } catch (err) {
-        console.log("Autoplay bloqueado. Tentando novamente em 2s...");
-        setTimeout(tocarMusica, 2000);
-      }
-    }
-    tocarMusica();
-
-    // ---- NEVE ----
-    const canvas = document.getElementById("snow");
+    // --- CHUVA ---
+    const canvas = document.getElementById("rain");
     const ctx = canvas.getContext("2d");
+
+    let drops = [];
+    let mouse = { x: null, y: null, radius: 100 };
+
+    window.addEventListener("resize", resizeCanvas);
+    window.addEventListener("mousemove", (e) => {
+      mouse.x = e.x;
+      mouse.y = e.y;
+    });
 
     function resizeCanvas() {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
     }
-    window.addEventListener("resize", resizeCanvas);
     resizeCanvas();
 
-    const flakes = [];
-    const numFlakes = 150;
-    for (let i = 0; i < numFlakes; i++) {
-      flakes.push({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        r: Math.random() * 4 + 2,
-        d: Math.random(),
-      });
+    class Drop {
+      constructor(x, y, length, speed) {
+        this.x = x;
+        this.y = y;
+        this.length = length;
+        this.speed = speed;
+        this.opacity = Math.random() * 0.3 + 0.2;
+      }
+
+      draw() {
+        ctx.beginPath();
+        ctx.moveTo(this.x, this.y);
+        ctx.lineTo(this.x, this.y + this.length);
+        ctx.strokeStyle = `rgba(173, 216, 230, ${this.opacity})`; // azul clarinho
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+      }
+
+      update() {
+        this.y += this.speed;
+        const dx = this.x - mouse.x;
+        const dy = this.y - mouse.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+
+        // leve reação ao mouse
+        if (distance < mouse.radius) {
+          this.x += (dx / distance) * 2;
+        }
+
+        if (this.y > canvas.height) {
+          this.y = -this.length;
+          this.x = Math.random() * canvas.width;
+        }
+      }
     }
 
-    let angle = 0;
-    let mouse = { x: null, y: null };
+    function createRain() {
+      const count = 150;
+      for (let i = 0; i < count; i++) {
+        drops.push(new Drop(Math.random() * canvas.width, Math.random() * canvas.height, Math.random() * 20 + 10, Math.random() * 6 + 4));
+      }
+    }
 
-    window.addEventListener("mousemove", (e) => {
-      mouse.x = e.clientX;
-      mouse.y = e.clientY;
-    });
-
-    window.addEventListener("mouseout", () => {
-      mouse.x = null;
-      mouse.y = null;
-    });
-
-    function drawFlakes() {
+    function animate() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = "rgba(255,255,255,0.8)";
-      ctx.beginPath();
-
-      for (let i = 0; i < flakes.length; i++) {
-        const f = flakes[i];
-        ctx.moveTo(f.x, f.y);
-        ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2);
+      for (let drop of drops) {
+        drop.update();
+        drop.draw();
       }
-
-      ctx.fill();
-      moveFlakes();
-    }
-
-    function moveFlakes() {
-      angle += 0.01;
-      for (let i = 0; i < flakes.length; i++) {
-        const f = flakes[i];
-        f.y += Math.cos(angle + f.d) + 1 + f.r / 2;
-        f.x += Math.sin(angle) * 0.5;
-
-        // Interação com o mouse
-        if (mouse.x && mouse.y) {
-          const dx = f.x - mouse.x;
-          const dy = f.y - mouse.y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          const minDist = 100;
-
-          if (dist < minDist) {
-            const force = (minDist - dist) / minDist;
-            const angleMouse = Math.atan2(dy, dx);
-            f.x += Math.cos(angleMouse) * force * 10;
-            f.y += Math.sin(angleMouse) * force * 10;
-          }
-        }
-
-        // Reposição no topo
-        if (f.y > canvas.height) {
-          flakes[i] = {
-            x: Math.random() * canvas.width,
-            y: 0,
-            r: f.r,
-            d: f.d,
-          };
-        }
-      }
-    }
-
-    (function animate() {
-      drawFlakes();
       requestAnimationFrame(animate);
-    })();
+    }
+
+    createRain();
+    animate();
   </script>
 </body>
 </html>
-
