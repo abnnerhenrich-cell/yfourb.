@@ -1,22 +1,22 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>yfourb</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
       height: 100vh;
-      background: #0a0f1a;
+      background: radial-gradient(circle at center, #0b1321 0%, #070b12 100%);
       color: #fff;
       overflow: hidden;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      font-family: 'Poppins', sans-serif;
+      font-family: "Poppins", sans-serif;
       position: relative;
     }
 
@@ -24,14 +24,22 @@
       font-size: 4rem;
       letter-spacing: 3px;
       color: #00ffff;
-      text-shadow:
-        0 0 5px #00ffff,
-        0 0 15px #00ffff,
-        0 0 30px #00ffff,
-        0 0 60px #00ffff;
+      text-shadow: 0 0 10px #00ffff, 0 0 30px #00ffff, 0 0 60px #00ffff;
       z-index: 2;
       margin-bottom: 20px;
-      transition: 0.3s;
+      animation: glowFade 3s ease-out forwards;
+    }
+
+    @keyframes glowFade {
+      0% {
+        text-shadow: 0 0 20px #00ffff, 0 0 60px #00ffff, 0 0 120px #00ffff;
+      }
+      50% {
+        text-shadow: 0 0 30px #00ffff, 0 0 80px #00ffff;
+      }
+      100% {
+        text-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff;
+      }
     }
 
     button {
@@ -82,14 +90,14 @@
     <img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png" alt="Instagram">
   </button>
 
-  <footer>🎧</footer>
+  <footer>🎧 música lofi tocando automaticamente...</footer>
 
   <script>
-    // ---- CONFIGURAÇÃO ----
+    // ---- CONFIGURAÇÕES ----
     const musicaURL = "https://voca.ro/12xCWfXjwOOn";
-    const instaURL = "https://instagram.com/yfourb"; // coloque seu Instagram aqui
+    const instaURL = "https://instagram.com/yfourb"; // seu link aqui
 
-    // ---- INSTA ----
+    // ---- BOTÃO INSTA ----
     document.getElementById("instaBtn").addEventListener("click", () => {
       window.open(instaURL, "_blank");
     });
@@ -97,16 +105,25 @@
     // ---- ÁUDIO ----
     const audio = new Audio(musicaURL);
     audio.loop = true;
+    audio.volume = 0;
 
-    function tentarTocar() {
-      audio.play().then(() => {
-        document.removeEventListener("click", tentarTocar);
-      }).catch(err => {
-        console.log("Esperando interação para tocar áudio...");
-      });
+    // Tenta tocar automaticamente com fade-in
+    async function tocarMusica() {
+      try {
+        await audio.play();
+        let vol = 0;
+        const fade = setInterval(() => {
+          if (vol < 1) {
+            vol += 0.02;
+            audio.volume = vol;
+          } else clearInterval(fade);
+        }, 100);
+      } catch (err) {
+        console.log("Autoplay bloqueado. Tentando novamente em 2s...");
+        setTimeout(tocarMusica, 2000);
+      }
     }
-
-    document.addEventListener("click", tentarTocar);
+    tocarMusica();
 
     // ---- NEVE ----
     const canvas = document.getElementById("snow");
@@ -119,7 +136,7 @@
     window.addEventListener("resize", resizeCanvas);
     resizeCanvas();
 
-    let flakes = [];
+    const flakes = [];
     const numFlakes = 150;
     for (let i = 0; i < numFlakes; i++) {
       flakes.push({
@@ -127,15 +144,13 @@
         y: Math.random() * canvas.height,
         r: Math.random() * 4 + 2,
         d: Math.random(),
-        vx: 0,
-        vy: 0
       });
     }
 
     let angle = 0;
     let mouse = { x: null, y: null };
 
-    window.addEventListener("mousemove", e => {
+    window.addEventListener("mousemove", (e) => {
       mouse.x = e.clientX;
       mouse.y = e.clientY;
     });
@@ -164,8 +179,6 @@
       angle += 0.01;
       for (let i = 0; i < flakes.length; i++) {
         const f = flakes[i];
-
-        // Movimento básico
         f.y += Math.cos(angle + f.d) + 1 + f.r / 2;
         f.x += Math.sin(angle) * 0.5;
 
@@ -184,15 +197,13 @@
           }
         }
 
-        // Reaparece no topo
+        // Reposição no topo
         if (f.y > canvas.height) {
           flakes[i] = {
             x: Math.random() * canvas.width,
             y: 0,
             r: f.r,
             d: f.d,
-            vx: 0,
-            vy: 0
           };
         }
       }
