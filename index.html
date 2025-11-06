@@ -24,15 +24,42 @@
       position: relative;
     }
 
+    /* --- Texto NEON --- */
     h1 {
-      font-size: 3rem;
-      letter-spacing: 2px;
+      font-size: 4rem;
+      letter-spacing: 3px;
       margin-bottom: 20px;
       z-index: 2;
-      animation: fadeIn 2s ease forwards;
+      color: #00eaff;
+      text-shadow:
+        0 0 5px #00eaff,
+        0 0 10px #00eaff,
+        0 0 20px #00eaff,
+        0 0 40px #00eaff,
+        0 0 80px #00eaff;
+      animation: neonPulse 2.5s infinite alternate;
     }
 
-    /* Botão do Instagram */
+    @keyframes neonPulse {
+      0% {
+        text-shadow:
+          0 0 5px #00eaff,
+          0 0 10px #00eaff,
+          0 0 20px #00eaff,
+          0 0 40px #00eaff,
+          0 0 80px #00eaff;
+        opacity: 1;
+      }
+      100% {
+        text-shadow:
+          0 0 2px #00eaff,
+          0 0 4px #00eaff,
+          0 0 10px #00eaff;
+        opacity: 0.85;
+      }
+    }
+
+    /* --- Botão do Instagram --- */
     #instaBtn {
       display: flex;
       align-items: center;
@@ -49,8 +76,8 @@
       border: none;
       transition: 0.3s;
       z-index: 2;
-      animation: fadeIn 2s ease 0.5s forwards;
       opacity: 0;
+      animation: fadeIn 2s ease 0.5s forwards;
     }
 
     #instaBtn:hover {
@@ -74,16 +101,6 @@
       pointer-events: none;
     }
 
-    footer {
-      position: absolute;
-      bottom: 20px;
-      font-size: 13px;
-      color: #aaa;
-      z-index: 2;
-      opacity: 0;
-      animation: fadeIn 2s ease 1s forwards;
-    }
-
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(10px); }
       to { opacity: 1; transform: translateY(0); }
@@ -103,33 +120,31 @@
     Instagram
   </button>
 
-  <footer>🎧</footer>
-
   <script>
-    // --- CONFIGURAÇÃO ---
-    const instagramLink = "https://instagram.com/yfourb"; // 👉 coloque o seu link
+    // --- CONFIGURAÇÕES ---
+    const instagramLink = "https://instagram.com/yfourb"; // 👉 coloque seu Insta aqui
+    const musicLink = "https://pixabay.com/music/mas-voc%c3%aa-que-eu-amo-franco-the-sir-youtube-432484/"; // 👉 coloque o link da sua música (mp3)
 
+    // --- Botão do Instagram ---
     document.getElementById('instaBtn').addEventListener('click', () => {
       window.open(instagramLink, "_blank");
     });
 
-    // --- MÚSICA LOFI ---
-    const audio = new Audio("https://www.youtube.com/watch?v=wI7usebGEvQ&list=RDwI7usebGEvQ&start_radio=1");
+    // --- Música em loop ---
+    const audio = new Audio(musicLink);
     audio.loop = true;
-    audio.volume = 0.8;
+    audio.volume = 0.5;
 
-    // tocar automaticamente (funciona na maioria dos navegadores)
     window.addEventListener('load', () => {
       const playPromise = audio.play();
       if (playPromise !== undefined) {
         playPromise.catch(() => {
-          // se bloqueado, toca assim que o usuário interagir
           document.body.addEventListener('click', () => audio.play(), { once: true });
         });
       }
     });
 
-    // --- FLOCOS DE NEVE ---
+    // --- Flocos de neve ---
     const canvas = document.getElementById('particles');
     const ctx = canvas.getContext('2d');
     let particles = [];
@@ -145,7 +160,7 @@
       particles.push({
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
-        r: Math.random() * 4 + 2, // flocos maiores
+        r: Math.random() * 4 + 2,
         d: Math.random()
       });
     }
