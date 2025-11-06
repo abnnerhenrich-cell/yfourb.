@@ -13,7 +13,7 @@
 
     body {
       height: 100vh;
-      background: #0d1117;
+      background: #0a0d12;
       color: #fff;
       overflow: hidden;
       font-family: "Poppins", sans-serif;
@@ -28,7 +28,7 @@
       font-size: 4rem;
       letter-spacing: 3px;
       color: #00eaff;
-      text-shadow: 0 0 30px #00eaff;
+      text-shadow: 0 0 25px #00eaff;
       animation: colorShift 6s ease-in-out infinite alternate;
       z-index: 2;
       user-select: none;
@@ -49,7 +49,7 @@
       margin-top: 40px;
       width: 60px;
       height: 60px;
-      background: rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.08);
       border: 2px solid rgba(255, 255, 255, 0.3);
       border-radius: 15px;
       display: flex;
@@ -62,7 +62,7 @@
 
     .insta-btn:hover {
       transform: scale(1.1);
-      box-shadow: 0 0 20px rgba(255, 255, 255, 0.4);
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
     }
 
     .insta-btn img {
@@ -93,12 +93,11 @@
   <script>
     // --- LINK DO INSTAGRAM ---
     const instaLink = "https://instagram.com/yfourb"; // coloque o seu link aqui
-
     document.getElementById("instaBtn").addEventListener("click", () => {
       window.open(instaLink, "_blank");
     });
 
-    // --- CHUVA INTERATIVA ---
+    // --- CHUVA REALISTA ---
     const canvas = document.getElementById("rain");
     const ctx = canvas.getContext("2d");
 
@@ -118,20 +117,24 @@
     resizeCanvas();
 
     class Drop {
-      constructor(x, y, length, speed) {
+      constructor(x, y, length, speed, width) {
         this.x = x;
         this.y = y;
         this.length = length;
         this.speed = speed;
-        this.opacity = Math.random() * 0.3 + 0.2;
+        this.width = width;
+        this.opacity = Math.random() * 0.5 + 0.3;
       }
 
       draw() {
+        const grad = ctx.createLinearGradient(this.x, this.y, this.x, this.y + this.length);
+        grad.addColorStop(0, `rgba(173, 216, 230, 0)`);
+        grad.addColorStop(1, `rgba(173, 216, 230, ${this.opacity})`);
+        ctx.strokeStyle = grad;
+        ctx.lineWidth = this.width;
         ctx.beginPath();
         ctx.moveTo(this.x, this.y);
         ctx.lineTo(this.x, this.y + this.length);
-        ctx.strokeStyle = `rgba(180, 220, 255, ${this.opacity})`;
-        ctx.lineWidth = 1.5;
         ctx.stroke();
       }
 
@@ -141,9 +144,9 @@
         const dy = this.y - mouse.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
 
-        // leve desvio ao mouse
+        // leve reação ao mouse
         if (distance < mouse.radius) {
-          this.x += (dx / distance) * 2;
+          this.x += (dx / distance) * 1.5;
         }
 
         if (this.y > canvas.height) {
@@ -154,9 +157,14 @@
     }
 
     function createRain() {
-      const count = 150;
+      const count = 120;
       for (let i = 0; i < count; i++) {
-        drops.push(new Drop(Math.random() * canvas.width, Math.random() * canvas.height, Math.random() * 20 + 10, Math.random() * 6 + 4));
+        const x = Math.random() * canvas.width;
+        const y = Math.random() * canvas.height;
+        const length = Math.random() * 25 + 15;
+        const speed = Math.random() * 2 + 1.5; // gotas mais lentas
+        const width = Math.random() * 1.5 + 0.8; // gotas mais espessas
+        drops.push(new Drop(x, y, length, speed, width));
       }
     }
 
