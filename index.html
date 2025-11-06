@@ -1,94 +1,63 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>yfourb</title>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
       height: 100vh;
-      background: #0d1117;
+      background: #0a0f1a;
       color: #fff;
       overflow: hidden;
-      font-family: "Poppins", sans-serif;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
+      font-family: 'Poppins', sans-serif;
       position: relative;
     }
 
-    /* --- Texto NEON --- */
     h1 {
       font-size: 4rem;
       letter-spacing: 3px;
-      margin-bottom: 20px;
-      z-index: 2;
-      color: #00eaff;
+      color: #00ffff;
       text-shadow:
-        0 0 5px #00eaff,
-        0 0 10px #00eaff,
-        0 0 20px #00eaff,
-        0 0 40px #00eaff,
-        0 0 80px #00eaff;
-      animation: neonPulse 2.5s infinite alternate;
-    }
-
-    @keyframes neonPulse {
-      0% {
-        text-shadow:
-          0 0 5px #00eaff,
-          0 0 10px #00eaff,
-          0 0 20px #00eaff,
-          0 0 40px #00eaff,
-          0 0 80px #00eaff;
-        opacity: 1;
-      }
-      100% {
-        text-shadow:
-          0 0 2px #00eaff,
-          0 0 4px #00eaff,
-          0 0 10px #00eaff;
-        opacity: 0.85;
-      }
-    }
-
-    /* --- Botão do Instagram --- */
-    #instaBtn {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      margin-top: 10px;
-      background: #e1306c;
-      color: white;
-      padding: 12px 22px;
-      border-radius: 12px;
-      font-weight: 500;
-      font-size: 16px;
-      cursor: pointer;
-      border: none;
-      transition: 0.3s;
+        0 0 5px #00ffff,
+        0 0 10px #00ffff,
+        0 0 20px #00ffff,
+        0 0 40px #00ffff;
       z-index: 2;
-      opacity: 0;
-      animation: fadeIn 2s ease 0.5s forwards;
+      margin-bottom: 20px;
+      transition: 0.3s;
     }
 
-    #instaBtn:hover {
-      background: #c72c5f;
-      transform: scale(1.05);
+    h1:hover {
+      text-shadow:
+        0 0 10px #00ffff,
+        0 0 20px #00ffff,
+        0 0 40px #00ffff,
+        0 0 80px #00ffff;
     }
 
-    #instaBtn svg {
-      width: 22px;
-      height: 22px;
-      fill: white;
+    button {
+      background: none;
+      border: none;
+      cursor: pointer;
+      z-index: 2;
+    }
+
+    button img {
+      width: 48px;
+      height: 48px;
+      filter: drop-shadow(0 0 8px #00ffff);
+      transition: transform 0.3s;
+    }
+
+    button img:hover {
+      transform: scale(1.1);
     }
 
     canvas {
@@ -97,112 +66,111 @@
       left: 0;
       width: 100%;
       height: 100%;
-      z-index: 0;
       pointer-events: none;
+      z-index: 0;
     }
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
+    footer {
+      position: absolute;
+      bottom: 20px;
+      color: #aaa;
+      font-size: 12px;
     }
   </style>
 </head>
 <body>
-  <canvas id="particles"></canvas>
+  <canvas id="snow"></canvas>
 
   <h1>yfourb</h1>
 
-  <!-- Botão com ícone do Instagram -->
+  <!-- Botão Instagram -->
   <button id="instaBtn">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-      <path d="M12 2.2c3.2 0 3.6 0 4.9.1 1.2.1 1.9.2 2.3.4.6.2 1 .5 1.5 1 .5.5.8.9 1 1.5.2.4.3 1.1.4 2.3.1 1.3.1 1.7.1 4.9s0 3.6-.1 4.9c-.1 1.2-.2 1.9-.4 2.3-.2.6-.5 1-1 1.5-.5.5-.9.8-1.5 1-.4.2-1.1.3-2.3.4-1.3.1-1.7.1-4.9.1s-3.6 0-4.9-.1c-1.2-.1-1.9-.2-2.3-.4-.6-.2-1-.5-1.5-1-.5-.5-.8-.9-1-1.5-.2-.4-.3-1.1-.4-2.3C2.2 15.6 2.2 15.2 2.2 12s0-3.6.1-4.9c.1-1.2.2-1.9.4-2.3.2-.6.5-1 1-1.5.5-.5.9-.8 1.5-1 .4-.2 1.1-.3 2.3-.4C8.4 2.2 8.8 2.2 12 2.2m0-2.2C8.7 0 8.3 0 7 .1 5.7.2 4.8.3 4 .6 3.2.9 2.5 1.3 1.9 1.9 1.3 2.5.9 3.2.6 4 .3 4.8.2 5.7.1 7 0 8.3 0 8.7 0 12s0 3.7.1 5c.1 1.3.2 2.2.5 3 .3.8.7 1.5 1.3 2.1.6.6 1.3 1 2.1 1.3.8.3 1.7.4 3 .5 1.3.1 1.7.1 5 .1s3.7 0 5-.1c1.3-.1 2.2-.2 3-.5.8-.3 1.5-.7 2.1-1.3.6-.6 1-1.3 1.3-2.1.3-.8.4-1.7.5-3 .1-1.3.1-1.7.1-5s0-3.7-.1-5c-.1-1.3-.2-2.2-.5-3-.3-.8-.7-1.5-1.3-2.1C21.5 1.3 20.8.9 20 .6c-.8-.3-1.7-.4-3-.5C15.7 0 15.3 0 12 0z"/><path d="M12 5.8a6.2 6.2 0 1 0 0 12.4 6.2 6.2 0 0 0 0-12.4zm0 10.2a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.4-10.9a1.4 1.4 0 1 1-2.8 0 1.4 1.4 0 0 1 2.8 0z"/>
-    </svg>
-    Instagram
+    <img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png" alt="Instagram">
   </button>
 
+  <footer>🎧 clique em qualquer lugar para tocar a música lofi</footer>
+
   <script>
-    // --- CONFIGURAÇÕES ---
-    const instagramLink = "https://instagram.com/yfourb"; // 👉 coloque seu Insta aqui
-    const musicLink = "https://voca.ro/12xCWfXjwOOn"; // 👉 coloque o link da sua música (mp3)
+    // ---- CONFIGURAÇÃO ----
+    const musicaURL = "https://voca.ro/12xCWfXjwOOn"; // coloque seu link aqui
+    const instaURL = "https://instagram.com/yfourb"; // coloque seu link aqui
 
-    // --- Botão do Instagram ---
-    document.getElementById('instaBtn').addEventListener('click', () => {
-      window.open(instagramLink, "_blank");
+    // ---- INSTA ----
+    document.getElementById("instaBtn").addEventListener("click", () => {
+      window.open(instaURL, "_blank");
     });
 
-    // --- Música em loop ---
-    const audio = new Audio(musicLink);
+    // ---- AUDIO ----
+    const audio = new Audio(musicaURL);
     audio.loop = true;
-    audio.volume = 0.5;
 
-    window.addEventListener('load', () => {
-      const playPromise = audio.play();
-      if (playPromise !== undefined) {
-        playPromise.catch(() => {
-          document.body.addEventListener('click', () => audio.play(), { once: true });
-        });
-      }
-    });
+    function tentarTocar() {
+      audio.play().then(() => {
+        document.removeEventListener("click", tentarTocar);
+      }).catch(err => {
+        console.log("Aguardando interação do usuário para tocar áudio...");
+      });
+    }
 
-    // --- Flocos de neve ---
-    const canvas = document.getElementById('particles');
-    const ctx = canvas.getContext('2d');
-    let particles = [];
+    document.addEventListener("click", tentarTocar);
+
+    // ---- NEVE ----
+    const canvas = document.getElementById("snow");
+    const ctx = canvas.getContext("2d");
 
     function resizeCanvas() {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
     }
-    window.addEventListener('resize', resizeCanvas);
+    window.addEventListener("resize", resizeCanvas);
     resizeCanvas();
 
-    for (let i = 0; i < 100; i++) {
-      particles.push({
+    let flakes = [];
+    for (let i = 0; i < 120; i++) {
+      flakes.push({
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
-        r: Math.random() * 4 + 2,
+        r: Math.random() * 4 + 1,
         d: Math.random()
       });
     }
 
-    function drawParticles() {
+    let angle = 0;
+    function drawFlakes() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = "rgba(255,255,255,0.4)";
+      ctx.fillStyle = "rgba(255,255,255,0.8)";
       ctx.beginPath();
-      for (let i = 0; i < particles.length; i++) {
-        let p = particles[i];
-        ctx.moveTo(p.x, p.y);
-        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2, true);
+      for (let i = 0; i < flakes.length; i++) {
+        let f = flakes[i];
+        ctx.moveTo(f.x, f.y);
+        ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2);
       }
       ctx.fill();
-      updateParticles();
+      moveFlakes();
     }
 
-    let angle = 0;
-    function updateParticles() {
-      angle += 0.001;
-      for (let i = 0; i < particles.length; i++) {
-        let p = particles[i];
-        p.y += Math.cos(angle + p.d) + 1 + p.r / 2;
-        p.x += Math.sin(angle) * 0.5;
+    function moveFlakes() {
+      angle += 0.01;
+      for (let i = 0; i < flakes.length; i++) {
+        let f = flakes[i];
+        f.y += Math.cos(angle + f.d) + 1 + f.r / 2;
+        f.x += Math.sin(angle) * 0.8;
 
-        if (p.y > canvas.height) {
-          particles[i] = {
+        if (f.y > canvas.height) {
+          flakes[i] = {
             x: Math.random() * canvas.width,
             y: 0,
-            r: p.r,
-            d: p.d
+            r: f.r,
+            d: f.d
           };
         }
       }
     }
 
-    function animate() {
-      drawParticles();
+    (function animate() {
+      drawFlakes();
       requestAnimationFrame(animate);
-    }
-    animate();
+    })();
   </script>
 </body>
 </html>
-
