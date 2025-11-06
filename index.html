@@ -18,27 +18,31 @@
       justify-content: center;
       font-family: "Poppins", sans-serif;
       position: relative;
+      cursor: pointer; /* indica que precisa clicar */
     }
 
     h1 {
       font-size: 4rem;
       letter-spacing: 3px;
       color: #00ffff;
-      text-shadow: 0 0 10px #00ffff, 0 0 30px #00ffff, 0 0 60px #00ffff;
+      text-shadow: 0 0 25px #00ffff, 0 0 80px #00ffff, 0 0 150px #00ffff;
       z-index: 2;
       margin-bottom: 20px;
-      animation: glowFade 3s ease-out forwards;
+      animation: blueToWhite 6s ease-out forwards;
     }
 
-    @keyframes glowFade {
+    @keyframes blueToWhite {
       0% {
-        text-shadow: 0 0 20px #00ffff, 0 0 60px #00ffff, 0 0 120px #00ffff;
+        color: #00ffff;
+        text-shadow: 0 0 25px #00ffff, 0 0 80px #00ffff, 0 0 150px #00ffff;
       }
       50% {
-        text-shadow: 0 0 30px #00ffff, 0 0 80px #00ffff;
+        color: #bfffff;
+        text-shadow: 0 0 15px #bfffff, 0 0 50px #9ff, 0 0 80px #9ff;
       }
       100% {
-        text-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff;
+        color: #ffffff;
+        text-shadow: 0 0 10px #ffffff, 0 0 25px #cfcfcf;
       }
     }
 
@@ -85,20 +89,20 @@
 
   <h1>yfourb</h1>
 
-  <!-- Botão Instagram -->
   <button id="instaBtn">
     <img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png" alt="Instagram">
   </button>
 
-  <footer>🎧 música lofi tocando automaticamente...</footer>
+  <footer>🎧</footer>
 
   <script>
     // ---- CONFIGURAÇÕES ----
-    const musicaURL = "https://voca.ro/12xCWfXjwOOn";
-    const instaURL = "https://instagram.com/yfourb"; // seu link aqui
+    const musicaURL = "https://voca.ro/12xCWfXjwOOn"; // link da sua música
+    const instaURL = "https://instagram.com/yfourb"; // troque pelo seu insta
 
-    // ---- BOTÃO INSTA ----
-    document.getElementById("instaBtn").addEventListener("click", () => {
+    // ---- INSTAGRAM ----
+    document.getElementById("instaBtn").addEventListener("click", (e) => {
+      e.stopPropagation(); // evita conflito com clique global
       window.open(instaURL, "_blank");
     });
 
@@ -107,7 +111,6 @@
     audio.loop = true;
     audio.volume = 0;
 
-    // Tenta tocar automaticamente com fade-in
     async function tocarMusica() {
       try {
         await audio.play();
@@ -119,11 +122,16 @@
           } else clearInterval(fade);
         }, 100);
       } catch (err) {
-        console.log("Autoplay bloqueado. Tentando novamente em 2s...");
-        setTimeout(tocarMusica, 2000);
+        console.log("Erro ao tentar tocar música:", err);
       }
     }
-    tocarMusica();
+
+    // Reproduz música após o primeiro clique em qualquer lugar
+    window.addEventListener("click", () => {
+      tocarMusica();
+      document.querySelector("footer").textContent = "🎧 música lofi tocando...";
+      document.body.style.cursor = "default";
+    }, { once: true });
 
     // ---- NEVE ----
     const canvas = document.getElementById("snow");
