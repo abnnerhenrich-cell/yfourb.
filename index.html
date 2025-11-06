@@ -26,20 +26,12 @@
       color: #00ffff;
       text-shadow:
         0 0 5px #00ffff,
-        0 0 10px #00ffff,
-        0 0 20px #00ffff,
-        0 0 40px #00ffff;
+        0 0 15px #00ffff,
+        0 0 30px #00ffff,
+        0 0 60px #00ffff;
       z-index: 2;
       margin-bottom: 20px;
       transition: 0.3s;
-    }
-
-    h1:hover {
-      text-shadow:
-        0 0 10px #00ffff,
-        0 0 20px #00ffff,
-        0 0 40px #00ffff,
-        0 0 80px #00ffff;
     }
 
     button {
@@ -75,6 +67,8 @@
       bottom: 20px;
       color: #aaa;
       font-size: 12px;
+      text-align: center;
+      width: 100%;
     }
   </style>
 </head>
@@ -88,19 +82,19 @@
     <img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png" alt="Instagram">
   </button>
 
-  <footer>🎧 clique em qualquer lugar para tocar a música lofi</footer>
+  <footer>🎧</footer>
 
   <script>
     // ---- CONFIGURAÇÃO ----
-    const musicaURL = "https://voca.ro/12xCWfXjwOOn"; // coloque seu link aqui
-    const instaURL = "https://instagram.com/yfourb"; // coloque seu link aqui
+    const musicaURL = "https://voca.ro/12xCWfXjwOOn";
+    const instaURL = "https://instagram.com/yfourb"; // coloque seu Instagram aqui
 
     // ---- INSTA ----
     document.getElementById("instaBtn").addEventListener("click", () => {
       window.open(instaURL, "_blank");
     });
 
-    // ---- AUDIO ----
+    // ---- ÁUDIO ----
     const audio = new Audio(musicaURL);
     audio.loop = true;
 
@@ -108,7 +102,7 @@
       audio.play().then(() => {
         document.removeEventListener("click", tentarTocar);
       }).catch(err => {
-        console.log("Aguardando interação do usuário para tocar áudio...");
+        console.log("Esperando interação para tocar áudio...");
       });
     }
 
@@ -126,25 +120,42 @@
     resizeCanvas();
 
     let flakes = [];
-    for (let i = 0; i < 120; i++) {
+    const numFlakes = 150;
+    for (let i = 0; i < numFlakes; i++) {
       flakes.push({
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
-        r: Math.random() * 4 + 1,
-        d: Math.random()
+        r: Math.random() * 4 + 2,
+        d: Math.random(),
+        vx: 0,
+        vy: 0
       });
     }
 
     let angle = 0;
+    let mouse = { x: null, y: null };
+
+    window.addEventListener("mousemove", e => {
+      mouse.x = e.clientX;
+      mouse.y = e.clientY;
+    });
+
+    window.addEventListener("mouseout", () => {
+      mouse.x = null;
+      mouse.y = null;
+    });
+
     function drawFlakes() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.fillStyle = "rgba(255,255,255,0.8)";
       ctx.beginPath();
+
       for (let i = 0; i < flakes.length; i++) {
-        let f = flakes[i];
+        const f = flakes[i];
         ctx.moveTo(f.x, f.y);
         ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2);
       }
+
       ctx.fill();
       moveFlakes();
     }
@@ -152,16 +163,36 @@
     function moveFlakes() {
       angle += 0.01;
       for (let i = 0; i < flakes.length; i++) {
-        let f = flakes[i];
-        f.y += Math.cos(angle + f.d) + 1 + f.r / 2;
-        f.x += Math.sin(angle) * 0.8;
+        const f = flakes[i];
 
+        // Movimento básico
+        f.y += Math.cos(angle + f.d) + 1 + f.r / 2;
+        f.x += Math.sin(angle) * 0.5;
+
+        // Interação com o mouse
+        if (mouse.x && mouse.y) {
+          const dx = f.x - mouse.x;
+          const dy = f.y - mouse.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          const minDist = 100;
+
+          if (dist < minDist) {
+            const force = (minDist - dist) / minDist;
+            const angleMouse = Math.atan2(dy, dx);
+            f.x += Math.cos(angleMouse) * force * 10;
+            f.y += Math.sin(angleMouse) * force * 10;
+          }
+        }
+
+        // Reaparece no topo
         if (f.y > canvas.height) {
           flakes[i] = {
             x: Math.random() * canvas.width,
             y: 0,
             r: f.r,
-            d: f.d
+            d: f.d,
+            vx: 0,
+            vy: 0
           };
         }
       }
