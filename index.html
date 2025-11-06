@@ -1,86 +1,160 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>yfourb</title>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-
-    body {
-      height: 100vh;
-      background: radial-gradient(circle at center, #0b1321 0%, #070b12 100%);
-      color: #fff;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      font-family: "Poppins", sans-serif;
-      position: relative;
-      cursor: pointer; /* indica que precisa clicar */
+    :root{
+      --bg1:#0b1321;
+      --bg2:#070b12;
+      --neon:#00ffff;
+      --player-blue:#0ea5ff; /* azul piscina */
+      --player-dark:#051018;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{height:100%}
+    body{
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:radial-gradient(circle at center,var(--bg1) 0%,var(--bg2) 100%);
+      color:#fff;
+      font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;
+      overflow:hidden;
     }
 
-    h1 {
-      font-size: 4rem;
-      letter-spacing: 3px;
-      color: #00ffff;
-      text-shadow: 0 0 25px #00ffff, 0 0 80px #00ffff, 0 0 150px #00ffff;
-      z-index: 2;
-      margin-bottom: 20px;
-      animation: blueToWhite 6s ease-out forwards;
+    /* TÍTULO NEON -> desbota para branco */
+    h1{
+      z-index:2;
+      font-size:4rem;
+      color:var(--neon);
+      text-shadow:0 0 25px var(--neon),0 0 80px var(--neon),0 0 150px var(--neon);
+      animation:blueToWhite 6s ease-out forwards;
+      pointer-events:none;
+    }
+    @keyframes blueToWhite{
+      0%{ color: #00ffff; text-shadow:0 0 25px #00ffff,0 0 80px #00ffff,0 0 150px #00ffff }
+      50%{ color:#bfffff; text-shadow:0 0 15px #bfffff,0 0 50px #9ff }
+      100%{ color:#ffffff; text-shadow:0 0 10px #fff,0 0 25px #cfcfcf }
     }
 
-    @keyframes blueToWhite {
-      0% {
-        color: #00ffff;
-        text-shadow: 0 0 25px #00ffff, 0 0 80px #00ffff, 0 0 150px #00ffff;
-      }
-      50% {
-        color: #bfffff;
-        text-shadow: 0 0 15px #bfffff, 0 0 50px #9ff, 0 0 80px #9ff;
-      }
-      100% {
-        color: #ffffff;
-        text-shadow: 0 0 10px #ffffff, 0 0 25px #cfcfcf;
-      }
+    /* Canvas flocos (pointer-events none to allow clicking player) */
+    canvas { position:fixed; inset:0; z-index:0; pointer-events:none }
+
+    /* Player quadrado */
+    .player {
+      position:fixed;
+      right:20px;
+      bottom:20px;
+      width:72px;
+      height:72px;
+      border-radius:12px;
+      background: linear-gradient(180deg,var(--player-blue),#0077b6);
+      box-shadow:
+        0 6px 18px rgba(2,6,23,0.6),
+        0 0 18px rgba(14,165,255,0.15),
+        inset 0 2px 6px rgba(255,255,255,0.06);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      z-index:10;
+      cursor:pointer;
+      user-select:none;
+      transition:transform .16s ease, box-shadow .16s ease;
+    }
+    .player:active{ transform:scale(.98) }
+    .player .inner {
+      width:60px;
+      height:60px;
+      border-radius:10px;
+      background: linear-gradient(180deg,var(--player-dark),#081426);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      box-shadow: inset 0 -6px 18px rgba(0,0,0,0.6);
     }
 
-    button {
-      background: none;
-      border: none;
-      cursor: pointer;
-      z-index: 2;
+    /* Icon */
+    .icon {
+      width:28px;
+      height:28px;
+      fill:#fff;
+      filter: drop-shadow(0 6px 14px rgba(0,170,255,0.12));
+      transition: transform .12s linear, opacity .12s;
     }
 
-    button img {
-      width: 48px;
-      height: 48px;
-      filter: drop-shadow(0 0 8px #00ffff);
-      transition: transform 0.3s;
+    /* playing glow */
+    .playing{
+      box-shadow:
+        0 10px 30px rgba(14,165,255,0.18),
+        0 2px 6px rgba(0,0,0,0.5),
+        inset 0 2px 8px rgba(255,255,255,0.02);
+      animation: pulse 1.6s infinite;
+    }
+    @keyframes pulse {
+      0%{ transform:translateY(0) }
+      50%{ transform:translateY(-3px) }
+      100%{ transform:translateY(0) }
     }
 
-    button img:hover {
-      transform: scale(1.1);
+    /* small controls under player for messages */
+    .player-msg {
+      position:fixed;
+      right:106px;
+      bottom:28px;
+      z-index:11;
+      color:#bcd4ff;
+      font-size:13px;
+      background:rgba(0,0,0,0.28);
+      padding:6px 10px;
+      border-radius:8px;
+      backdrop-filter: blur(6px);
+      box-shadow:0 6px 18px rgba(2,6,23,0.6);
+      max-width:220px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
     }
-
-    canvas {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      z-index: 0;
+    .player-actions {
+      position:fixed;
+      right:20px;
+      bottom:100px;
+      z-index:11;
+      display:flex;
+      gap:8px;
+      flex-direction:column;
+      align-items:flex-end;
+    }
+    .open-external {
+      font-size:12px;
+      padding:6px 8px;
+      background:rgba(0,0,0,0.28);
+      color:#d7eeff;
+      border-radius:8px;
+      border:1px solid rgba(255,255,255,0.04);
+      cursor:pointer;
+      backdrop-filter: blur(6px);
     }
 
     footer {
-      position: absolute;
-      bottom: 20px;
-      color: #aaa;
-      font-size: 12px;
-      text-align: center;
-      width: 100%;
+      position:fixed;
+      left:0; right:0;
+      bottom:6px;
+      text-align:center;
+      color:#9fb7d9;
+      font-size:12px;
+      z-index:5;
+      pointer-events:none;
+    }
+
+    /* responsive shrink */
+    @media (max-width:480px){
+      h1{font-size:2.4rem}
+      .player{width:64px;height:64px;right:14px;bottom:14px}
+      .player .inner{width:52px;height:52px}
+      .player-msg{right:86px;bottom:18px;font-size:12px}
     }
   </style>
 </head>
@@ -89,138 +163,208 @@
 
   <h1>yfourb</h1>
 
-  <button id="instaBtn">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png" alt="Instagram">
-  </button>
+  <!-- player -->
+  <div id="player" class="player" role="button" aria-pressed="false" title="Tocar / Pausar música">
+    <div class="inner" id="playerInner" aria-hidden="true">
+      <!-- default: play icon; JS will swap to pause -->
+      <svg class="icon" id="iconPlay" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+        <path d="M16 12v40l36-20L16 12z"/>
+      </svg>
+      <svg class="icon" id="iconPause" style="display:none" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+        <path d="M16 12h10v40H16zM38 12h10v40H38z"/>
+      </svg>
+    </div>
+  </div>
 
-  <footer>🎧</footer>
+  <!-- message -->
+  <div id="playerMsg" class="player-msg">Clique no player para tocar a música</div>
+
+  <!-- optional external open if audio cannot play in-page -->
+  <div class="player-actions" id="playerActions" style="display:none">
+    <button id="openExt" class="open-external">Abrir áudio em nova aba</button>
+  </div>
+
+  <footer>🎧 player controlável — clique para iniciar/pausar</footer>
 
   <script>
-    // ---- CONFIGURAÇÕES ----
-    const musicaURL = "https://voca.ro/12xCWfXjwOOn"; // link da sua música
-    const instaURL = "https://instagram.com/yfourb"; // troque pelo seu insta
+    /* ============================
+       CONFIGURAÇÃO DE LINK (edite)
+       ============================ */
+    const MUSIC_LINK = "https://www.youtube.com/watch?v=wI7usebGEvQ&list=RDwI7usebGEvQ&start_radio=1"; // seu link (pode ser mp3 direto)
+    const INSTA_LINK = "https://instagram.com/yfourb";
 
-    // ---- INSTAGRAM ----
-    document.getElementById("instaBtn").addEventListener("click", (e) => {
-      e.stopPropagation(); // evita conflito com clique global
-      window.open(instaURL, "_blank");
-    });
+    /* ============================
+       PLAYER LOGIC
+       ============================ */
+    const player = document.getElementById('player');
+    const playerInner = document.getElementById('playerInner');
+    const iconPlay = document.getElementById('iconPlay');
+    const iconPause = document.getElementById('iconPause');
+    const playerMsg = document.getElementById('playerMsg');
+    const playerActions = document.getElementById('playerActions');
+    const openExt = document.getElementById('openExt');
 
-    // ---- ÁUDIO ----
-    const audio = new Audio(musicaURL);
+    // cria objeto Audio
+    const audio = new Audio(MUSIC_LINK);
     audio.loop = true;
-    audio.volume = 0;
+    audio.preload = 'auto';
+    audio.crossOrigin = 'anonymous';
 
-    async function tocarMusica() {
-      try {
-        await audio.play();
-        let vol = 0;
-        const fade = setInterval(() => {
-          if (vol < 1) {
-            vol += 0.02;
-            audio.volume = vol;
-          } else clearInterval(fade);
-        }, 100);
-      } catch (err) {
-        console.log("Erro ao tentar tocar música:", err);
+    let isPlaying = false;
+    let playAttempted = false;
+    let playBlocked = false;
+
+    // tentar tocar quando usuário clicar especificamente no player
+    async function togglePlay(e){
+      e && e.stopPropagation();
+      if(!playAttempted){
+        // primeira tentativa
+        playAttempted = true;
+        try {
+          await audio.play();
+          onPlayStart();
+        } catch (err) {
+          // provável bloqueio (ou link não é direto)
+          playBlocked = true;
+          playerMsg.textContent = "Não foi possível reproduzir aqui. Abra externamente.";
+          playerActions.style.display = "flex";
+          console.warn("play blocked or error:", err);
+        }
+      } else {
+        // já tentou antes, apenas play/pause normal
+        if(isPlaying){
+          audio.pause();
+          onPlayStop();
+        } else {
+          try{
+            await audio.play();
+            onPlayStart();
+          }catch(err){
+            playBlocked = true;
+            playerMsg.textContent = "Erro ao reproduzir. Abra externamente.";
+            playerActions.style.display = "flex";
+            console.warn("play error:", err);
+          }
+        }
       }
     }
 
-    // Reproduz música após o primeiro clique em qualquer lugar
-    window.addEventListener("click", () => {
-      tocarMusica();
-      document.querySelector("footer").textContent = "🎧 música lofi tocando...";
-      document.body.style.cursor = "default";
-    }, { once: true });
-
-    // ---- NEVE ----
-    const canvas = document.getElementById("snow");
-    const ctx = canvas.getContext("2d");
-
-    function resizeCanvas() {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+    function onPlayStart(){
+      isPlaying = true;
+      player.classList.add('playing');
+      iconPlay.style.display = 'none';
+      iconPause.style.display = 'block';
+      player.setAttribute('aria-pressed','true');
+      playerMsg.textContent = "Tocando — clique para pausar";
+      // ocultar ações externas se estavam visíveis
+      playerActions.style.display = "none";
     }
-    window.addEventListener("resize", resizeCanvas);
-    resizeCanvas();
 
-    const flakes = [];
-    const numFlakes = 150;
-    for (let i = 0; i < numFlakes; i++) {
+    function onPlayStop(){
+      isPlaying = false;
+      player.classList.remove('playing');
+      iconPlay.style.display = 'block';
+      iconPause.style.display = 'none';
+      player.setAttribute('aria-pressed','false');
+      playerMsg.textContent = "Pausado — clique para tocar";
+    }
+
+    // evento do player
+    player.addEventListener('click', togglePlay);
+
+    // se audio terminar (não esperado por loop, mas monitora)
+    audio.addEventListener('ended', () => {
+      onPlayStop();
+    });
+
+    // se ocorrer erro carregando
+    audio.addEventListener('error', (e) => {
+      console.warn('Audio error event:', e);
+      playBlocked = true;
+      playerMsg.textContent = "Não foi possível carregar o áudio aqui.";
+      playerActions.style.display = "flex";
+    });
+
+    // botão abre o link externamente (fallback)
+    openExt.addEventListener('click', (ev) => {
+      ev.stopPropagation();
+      window.open(MUSIC_LINK, '_blank', 'noopener');
+    });
+
+    // clique no corpo NÃO inicia o áudio automaticamente (remoção de antigos handlers).
+    // usuário precisa clicar no quadrado do player — isso evita autoplay-surpresa.
+
+    /* ============================
+       NEVE / partículas (interativas)
+       ============================ */
+    const canvas = document.getElementById('snow');
+    const ctx = canvas.getContext('2d');
+
+    function resize(){
+      canvas.width = innerWidth;
+      canvas.height = innerHeight;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    let flakes = [];
+    const NUM = 140;
+    for(let i=0;i<NUM;i++){
       flakes.push({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        r: Math.random() * 4 + 2,
-        d: Math.random(),
+        x: Math.random()*canvas.width,
+        y: Math.random()*canvas.height,
+        r: Math.random()*4 + 2,
+        d: Math.random()*Math.PI*2
       });
     }
 
-    let angle = 0;
-    let mouse = { x: null, y: null };
+    let mouse = { x:null, y:null };
+    window.addEventListener('mousemove', (e) => { mouse.x = e.clientX; mouse.y = e.clientY; });
+    window.addEventListener('mouseout', ()=> { mouse.x = null; mouse.y = null; });
 
-    window.addEventListener("mousemove", (e) => {
-      mouse.x = e.clientX;
-      mouse.y = e.clientY;
-    });
-
-    window.addEventListener("mouseout", () => {
-      mouse.x = null;
-      mouse.y = null;
-    });
-
-    function drawFlakes() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = "rgba(255,255,255,0.8)";
+    let ang = 0;
+    function draw(){
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      ctx.fillStyle = "rgba(255,255,255,0.85)";
       ctx.beginPath();
-
-      for (let i = 0; i < flakes.length; i++) {
+      for(let i=0;i<flakes.length;i++){
         const f = flakes[i];
-        ctx.moveTo(f.x, f.y);
-        ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2);
+        ctx.moveTo(f.x,f.y);
+        ctx.arc(f.x,f.y,f.r,0,Math.PI*2);
       }
-
       ctx.fill();
-      moveFlakes();
+      move();
     }
 
-    function moveFlakes() {
-      angle += 0.01;
-      for (let i = 0; i < flakes.length; i++) {
+    function move(){
+      ang += 0.01;
+      for(let i=0;i<flakes.length;i++){
         const f = flakes[i];
-        f.y += Math.cos(angle + f.d) + 1 + f.r / 2;
-        f.x += Math.sin(angle) * 0.5;
+        f.y += Math.cos(ang + f.d) + 1 + f.r/2;
+        f.x += Math.sin(ang)*0.6;
 
-        // Interação com o mouse
-        if (mouse.x && mouse.y) {
+        // interação com mouse: flocos são repelidos levemente
+        if(mouse.x !== null && mouse.y !== null){
           const dx = f.x - mouse.x;
           const dy = f.y - mouse.y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
+          const dist = Math.sqrt(dx*dx + dy*dy);
           const minDist = 100;
-
-          if (dist < minDist) {
-            const force = (minDist - dist) / minDist;
-            const angleMouse = Math.atan2(dy, dx);
-            f.x += Math.cos(angleMouse) * force * 10;
-            f.y += Math.sin(angleMouse) * force * 10;
+          if(dist < minDist){
+            const force = (minDist - dist)/minDist;
+            const angM = Math.atan2(dy,dx);
+            f.x += Math.cos(angM) * force * 8;
+            f.y += Math.sin(angM) * force * 8;
           }
         }
 
-        // Reposição no topo
-        if (f.y > canvas.height) {
-          flakes[i] = {
-            x: Math.random() * canvas.width,
-            y: 0,
-            r: f.r,
-            d: f.d,
-          };
+        if(f.y > canvas.height + 20){
+          flakes[i] = { x: Math.random()*canvas.width, y: -10, r: f.r, d: Math.random()*Math.PI*2 };
         }
       }
     }
 
-    (function animate() {
-      drawFlakes();
-      requestAnimationFrame(animate);
-    })();
+    (function anim(){ draw(); requestAnimationFrame(anim); })();
+
   </script>
 </body>
 </html>
